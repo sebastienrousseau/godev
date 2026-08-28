@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: hadolint (Containerfile)
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: Containerfile
       - name: shellcheck
@@ -37,7 +37,7 @@ jobs:
           load: true
           tags: ${{ github.event.repository.name }}:ci
       - name: Trivy vulnerability scan (fail on HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ github.event.repository.name }}:ci
           severity: HIGH,CRITICAL
