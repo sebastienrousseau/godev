@@ -1,0 +1,66 @@
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
+
+# Changelog
+
+All notable changes to this project are documented here.
+
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+`godev` is the Go member of the [`langdev`](https://github.com/sebastienrousseau/langdev)
+suite: a portable, disposable Go development container built on the
+shared, hardened langdev core, that builds with **both** Docker and
+Podman and boots the developer's own chezmoi-managed dotfiles.
+
+### Added
+
+- **Go toolchain stage.** The official, checksum-verified Go `1.27.0`
+  distribution (amd64 + arm64) plus the pinned Go tools `gopls`
+  `v0.23.0`, `dlv` (Delve) `v1.27.1`, `staticcheck` `2026.2.1`, and
+  `gofumpt` `v0.11.0`, all installed with `CGO_ENABLED=0` into a
+  relocatable `/opt/langdev/toolchain` prefix copied into the final
+  image — no build tools or module caches reach the runtime layer.
+- **Go language wiring.** A single `nvim/plugins.local/lang.lua` spec
+  wiring `gopls` through `nvim-lspconfig` (with `gofumpt` and
+  `staticcheck` analysis enabled to match the CLI), and a
+  `dotfiles.d/go.sh` fragment installed to `/etc/profile.d/go.sh` that
+  exports `GOROOT`/`GOPATH`/`GOBIN`, sets `GOFLAGS=-mod=readonly` and
+  `GOTOOLCHAIN=local`, and adds the Go-specific shell aliases.
+- **Read-only-rootfs cache redirect.** `GOCACHE`, `GOMODCACHE`, and
+  `GOBIN` are redirected onto the writable `~/.cache/go` tmpfs so
+  `go build`/`go test` work under the read-only root filesystem.
+- **Shared langdev core.** Vendored `common/entrypoint.sh` and
+  `common/bootstrap-dotfiles.sh`, the hardened `Containerfile`,
+  `compose.yaml`, and docker/podman-autodetecting `Makefile`.
+- **Security posture, on by default.** Non-root `dev` (UID/GID 1000);
+  `cap_drop: [ALL]`; `no-new-privileges`; read-only root filesystem with
+  `tmpfs` for writable state; `pids_limit: 512`, `mem_limit: 4g`,
+  `cpus: 2.0`; base image pinned by digest; the Go tarball
+  sha256-verified (no `curl | sh`); no committed or baked-in secrets.
+- **CI gates.** `hadolint`, `shellcheck`, a Docker build, and a Trivy
+  image scan (fail on HIGH/CRITICAL) on every push and pull request; a
+  CycloneDX SBOM uploaded as an artifact.
+
+### Documentation
+
+- README rewritten to the langdev suite [`STYLE.md`](https://github.com/sebastienrousseau/langdev/blob/main/STYLE.md)
+  house style — centered header, badge row, Contents ToC, and the
+  standard suite section order.
+- Community docs vendored from the langdev core:
+  [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md),
+  [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md),
+  [`SUPPORT.md`](SUPPORT.md), [`GOVERNANCE.md`](GOVERNANCE.md).
+- `.github/` scaffolding: `CODEOWNERS`, `FUNDING.yml`, `dependabot.yml`,
+  a pull-request template, and issue forms (bug report, feature request,
+  and a config routing questions and security reports).
+
+### Licensing
+
+- Relicensed from single MIT to **dual `Apache-2.0 OR MIT`**. Added
+  `LICENSE-APACHE` and `LICENSE-MIT`, removed the single `LICENSE` file,
+  and applied `SPDX-License-Identifier: Apache-2.0 OR MIT` headers across
+  the non-vendored sources.
+
+[Unreleased]: https://github.com/sebastienrousseau/godev/commits/main

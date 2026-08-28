@@ -1,5 +1,5 @@
 # /etc/profile.d/go.sh — Go language fragment (godev)
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Installed to /etc/profile.d (root-owned, 0644) so it is sourced via
 # /etc/profile for login shells — kept OUT of the user's chezmoi dotfiles so

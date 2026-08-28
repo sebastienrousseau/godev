@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.9
 # godev Containerfile — OCI, builds with Docker AND Podman.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Multi-stage, hardened, ultra-small Go development image built on the langdev
 # foundation. This repo fills in the `toolchain` stage (the Go compiler + its
@@ -132,8 +132,8 @@ RUN nvim --headless "+Lazy! restore" +qa 2>&1 | tail -n 5 || true \
 FROM alpine:${ALPINE_VERSION}@${ALPINE_DIGEST} AS base
 ARG USERNAME USER_UID USER_GID
 
-LABEL org.opencontainers.image.title="langdev" \
-      org.opencontainers.image.licenses="MIT" \
+LABEL org.opencontainers.image.title="godev" \
+      org.opencontainers.image.licenses="Apache-2.0 OR MIT" \
       org.opencontainers.image.vendor="Sebastien Rousseau"
 
 # Runtime deps: editor, multiplexer (tmux — available by default), and the

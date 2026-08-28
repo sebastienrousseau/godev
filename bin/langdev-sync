@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # langdev-sync — vendor the shared common/ core into the current repo.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Usage:
 #   bin/langdev-sync                      # source from $LANGDEV_SOURCE or default
