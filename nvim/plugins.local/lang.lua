@@ -1,14 +1,16 @@
 -- godev — Go language wiring for Neovim (langdev lang.lua)
 -- SPDX-License-Identifier: MIT
 --
--- gopls is installed at BUILD time by the toolchain stage (`go install`) and
--- lives on PATH at /opt/langdev/toolchain/gopath/bin. Mason stays disabled
--- (see common/nvim/plugins/disabled.lua): no network on first launch, fully
--- reproducible.
+-- Dropped into the user's chezmoi-managed Neovim config via its
+-- `plugins.local` convention (auto-imported), so the dotfiles stay pristine
+-- and langdev-agnostic. Baked headless at build time — no network on first
+-- launch, fully reproducible.
 --
--- We wire gopls through nvim-lspconfig (LazyVim's `servers` table) pointed at
--- the pre-installed binary, and enable gofumpt + staticcheck analysis inside
--- gopls so formatting/linting match the shipped CLI tools.
+-- gopls is installed at BUILD time by the toolchain stage (`go install`) and
+-- lives on PATH at /opt/langdev/toolchain/gopath/bin, so Mason is unnecessary.
+-- We wire gopls through nvim-lspconfig's `servers` table pointed at the
+-- pre-installed binary, and enable gofumpt + staticcheck analysis inside gopls
+-- so formatting/linting match the shipped CLI tools.
 return {
   -- Treesitter grammars for Go + its module/workspace files.
   {

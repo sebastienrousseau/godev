@@ -1,10 +1,13 @@
-# ~/.bashrc.d/go.sh — Go language fragment (godev)
+# /etc/profile.d/go.sh — Go language fragment (godev)
 # SPDX-License-Identifier: MIT
 #
-# Sourced by the common ~/.bashrc for interactive shells. Sets the Go
-# environment for the pre-installed, relocatable toolchain and adds a few
-# aliases ONLY for tools that are actually installed in the image
-# (go build/test/vet, gofumpt, staticcheck). No host PATH is propagated.
+# Installed to /etc/profile.d (root-owned, 0644) so it is sourced via
+# /etc/profile for login shells — kept OUT of the user's chezmoi dotfiles so
+# those stay pristine and langdev-agnostic. Sets the Go environment for the
+# pre-installed, relocatable toolchain and adds a few aliases ONLY for tools
+# actually installed in the image (go build/test/vet, gofumpt, staticcheck).
+# No host PATH is propagated. (The image also sets these as ENV so non-login
+# one-shot commands, e.g. `docker run … go test`, get the same environment.)
 
 # Relocatable toolchain prefix baked in at build time.
 #   GOROOT   — the official Go distribution.

@@ -8,9 +8,13 @@ a complete, batteries-included Go toolchain inside a container you can
 Podman (Linux, macOS, Windows/WSL2).
 
 It ships the pinned official Go toolchain (compiler, `go`, `gofmt`) plus
-`gopls`, `dlv` (Delve), `staticcheck`, and `gofumpt`, and a pre-configured
-Neovim (LazyVim + `nvim-lspconfig`) with the LSP wired to the build-time
-`gopls`. No network is needed on first launch.
+`gopls`, `dlv` (Delve), `staticcheck`, and `gofumpt`. The developer
+environment (shell, editor, **tmux**) is **your own chezmoi-managed
+dotfiles**, cloned and applied at build time — always the latest by default
+(pin a tag/commit with the `DOTFILES_REF` build arg). A single
+`nvim/plugins.local/lang.lua` spec is dropped into your dotfiles' Neovim to
+wire `gopls`; plugins are baked headless at build time, so no network is
+needed on first launch.
 
 ## Quick start
 
@@ -23,6 +27,10 @@ make trash         # remove the image + dangling build cache
 Your code is the **only** bind mount, at `/work`. Everything else is
 ephemeral (read-only rootfs + tmpfs), so a container is truly disposable.
 
+**tmux is loaded by default:** an interactive `make up` attaches to (or
+creates) a persistent `langdev` tmux session so panes/windows survive
+detach. Opt out with `LANGDEV_NO_TMUX=1`.
+
 ## What's inside (pinned)
 
 | Component | Version | How it's pinned |
@@ -33,7 +41,8 @@ ephemeral (read-only rootfs + tmpfs), so a container is truly disposable.
 | `dlv` (Delve) | `v1.27.1` | `DELVE_VERSION`; `go install …@version` |
 | `staticcheck` | `2026.2.1` | `STATICCHECK_VERSION`; `go install …@version` |
 | `gofumpt` | `v0.11.0` | `GOFUMPT_VERSION`; `go install …@version` |
-| Neovim plugins | — | `nvim/lazy-lock.json` (regenerate with `make lock`/CI) |
+| Dotfiles | latest | `DOTFILES_REF` build arg (default `main`; pin a tag/commit for reproducible builds) |
+| Neovim plugins | — | baked headless at build time from your dotfiles' `lazy-lock.json` |
 
 The toolchain is built in a separate `toolchain` stage and only its
 relocatable prefix (`/opt/langdev/toolchain`) is copied into the final
@@ -41,10 +50,10 @@ image — build tools (`curl`, `git`) and the Go build/module caches never
 reach the runtime layer. The pinned tools are compiled with `CGO_ENABLED=0`
 so they are static and need no C toolchain at runtime.
 
-> **Neovim lockfile bootstrap:** `nvim/lazy-lock.json` is committed as
-> `{}` to bootstrap the build. The first CI image build (or a local
-> `nvim --headless +"Lazy! sync"`) regenerates the fully pinned lockfile;
-> commit the result to freeze the exact plugin set.
+> **Dotfiles provenance:** the exact dotfiles commit bundled into the image
+> is recorded at `~/.dotfiles.commit`. Builds are "always the latest" by
+> default; pass `--build-arg DOTFILES_REF=<tag-or-commit>` (or set it in
+> `compose.yaml`) to freeze a specific revision for reproducible builds.
 
 ## Make targets
 
@@ -65,32 +74,11 @@ mount flags for Podman) so the same commands work with either engine.
 
 ## Aliases
 
-Provided by `common/dotfiles/bash_aliases` (language-agnostic) and
-`dotfiles.d/go.sh` (Go-specific), both sourced by the interactive shell.
+General shell aliases come from **your own chezmoi-managed dotfiles**
+(applied at build time), so they are whatever you already use day to day.
+godev adds only the Go-specific fragment below.
 
-### General
-
-| Alias | Expands to |
-|---|---|
-| `..` / `...` / `....` | `cd ..` / `cd ../..` / `cd ../../..` |
-| `ll` | `ls -alhF` |
-| `la` | `ls -A` |
-| `l` | `ls -CF` |
-| `lt` | `ls -alhFt` (newest first) |
-| `rm` | `rm -I --preserve-root` |
-| `cp` / `mv` | `cp -i` / `mv -i` |
-| `mkdir` | `mkdir -p` |
-| `v` / `vi` | `nvim` |
-| `gs` | `git status -sb` |
-| `gd` | `git diff` |
-| `gl` | `git log --oneline --graph --decorate -20` |
-| `ga` / `gc` / `gp` | `git add` / `git commit` / `git push` |
-| `gco` / `gb` | `git checkout` / `git branch` |
-| `h` | `history` |
-| `path` | print `$PATH`, one entry per line |
-| `reload` | `exec "$SHELL" -l` |
-
-### Go (`dotfiles.d/go.sh`)
+### Go (`/etc/profile.d/go.sh`)
 
 | Alias | Expands to |
 |---|---|
@@ -101,10 +89,13 @@ Provided by `common/dotfiles/bash_aliases` (language-agnostic) and
 | `gofm` | `gofumpt -l -w .` |
 | `golint` | `staticcheck ./...` |
 
-`dotfiles.d/go.sh` also exports `GOROOT`, `GOPATH`, `GOBIN`, prepends the
-toolchain bins to `PATH`, and sets `GOFLAGS=-mod=readonly` and
-`GOTOOLCHAIN=local` for reproducible builds. It does **not** propagate any
-host `PATH`.
+`go.sh` (installed to `/etc/profile.d/go.sh`, root-owned `0644`) also exports
+`GOROOT`, `GOPATH`, `GOBIN`, prepends the toolchain bins to `PATH`, and sets
+`GOFLAGS=-mod=readonly` and `GOTOOLCHAIN=local` for reproducible builds. It
+does **not** propagate any host `PATH`. It lives in `/etc/profile.d` (not the
+user's dotfiles) so those stay pristine and langdev-agnostic; the same values
+are also set as image `ENV` so non-login one-shot commands (e.g.
+`make run CMD="go test ./..."`) get the identical environment.
 
 > **Read-only rootfs & the module cache.** `GOROOT` and the baked
 > `GOPATH` (which holds the pre-installed tools) are read-only. So that
@@ -117,14 +108,18 @@ host `PATH`.
 
 ## Neovim
 
-- LazyVim starter, pinned by commit and baked in at build time.
-- Go is configured via `neovim/nvim-lspconfig` in `nvim/plugins/lang.lua`,
-  with `gopls` pointed at the pre-installed binary on `PATH`; `gofumpt`
-  and `staticcheck` analysis are enabled inside `gopls` to match the CLI.
+- Your **own chezmoi-managed Neovim config** is authoritative — cloned and
+  applied at build time, then its full plugin set is baked headless so first
+  launch needs no network.
+- godev drops **one** spec, `nvim/plugins.local/lang.lua`, into your config's
+  `plugins.local/` directory (auto-imported via that convention). It wires
+  `gopls` through `nvim-lspconfig` pointed at the pre-installed binary on
+  `PATH`, with `gofumpt` and `staticcheck` analysis enabled inside `gopls` to
+  match the CLI tools.
 - Treesitter grammars `go`, `gomod`, `gosum`, `gowork` are added on top of
-  the common set.
-- **Mason is intentionally disabled** — the LSP is installed at build time,
-  so first launch needs no network and the image stays reproducible.
+  whatever your config already installs.
+- `gopls` is installed at build time by the toolchain stage, so no LSP
+  package manager is needed at runtime and the image stays reproducible.
 
 ## Security posture
 
