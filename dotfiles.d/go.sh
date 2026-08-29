@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # /etc/profile.d/go.sh — Go language fragment (godev)
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
