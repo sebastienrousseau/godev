@@ -1,0 +1,24 @@
+# langdev .dockerignore — keep the build context tiny and secret-free.
+# Rename to `.dockerignore` in each repo.
+
+# Never send secrets or VCS metadata into the build context.
+.env
+*.env
+!env.example
+.git
+.gitignore
+.corral-state.json
+
+# Local runtime + scan artifacts.
+work/
+sbom.cdx.json
+*.log
+
+# Docs/CI are not needed to build the image.
+README.md
+LICENSE
+.github/
+Makefile
+compose.yaml
+docker-compose.yml
+podman-compose.yml
