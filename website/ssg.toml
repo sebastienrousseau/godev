@@ -1,7 +1,7 @@
 site_name = "godev"
 site_title = "godev — Portable, Hardened Go 1.24+ AI Developer Container"
 site_description = "High-throughput Go container preloaded with gopls, golangci-lint, delve debugger, Go 1.24+ toolchain, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server."
-base_url = "https://sebastienrousseau.github.io/godev/"
+base_url = "https://sebastienrousseau.com/godev/"
 language = "en-GB"
 
 content_dir = "content"
