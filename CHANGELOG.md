@@ -9,6 +9,24 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-08-29
+
+### Added
+
+- **Remote & Mobile Web Access.**
+  - `make web` and `make web-auth` targets using `ttyd` for browser-based access on iPads and mobile devices over WebSocket/SSL.
+  - `make mosh` for UDP-based roaming mobile shell sessions that survive connection drops.
+- **Diagnostic CLI (`make doctor`).**
+  - Added `common/doctor.sh` to probe host engines, architecture, cgroups, kernel security, and clipboard readiness.
+- **Universal Clipboard (OSC 52).**
+  - Added `set -s set-clipboard on` in `common/tmux.conf` for seamless copy-paste to host/mobile clipboards.
+- **TUI Popups.**
+  - Added floating TMUX popups for Lazygit (`Prefix + g`) and Lazydocker (`Prefix + d`).
+- **VS Code IDE Grid & Parallel Task Worktrees.**
+  - Added `common/tmux-ide.sh` (`Prefix + i`) and `common/muxtree.sh` (`Prefix + m`).
+
+## [0.0.1] - 2026-08-29
+
 `godev` is the Go member of the [`langdev`](https://github.com/sebastienrousseau/langdev)
 suite: a portable, disposable Go development container built on the
 shared, hardened langdev core, that builds with **both** Docker and
