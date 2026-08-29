@@ -1,12 +1,12 @@
 ---
 layout: index
-title: godev — Portable, Hardened Go 1.24+ AI Developer Container
-name: godev
-headline: Hardened Go 1.24+ Development Container for AI Agents
-lead: High-throughput Go container preloaded with gopls, golangci-lint, delve debugger, Go 1.24+ toolchain, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server.
-permalink: /
-language: en-GB
-date: 2026-08-29
+title: "godev — Portable, Hardened Go 1.24+ AI Developer Container"
+name: "godev"
+headline: "Hardened Go 1.24+ Development Container for AI Agents"
+lead: "High-throughput Go container preloaded with gopls, golangci-lint, delve debugger, Go 1.24+ toolchain, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server."
+permalink: "/"
+language: "en-GB"
+date: "2026-08-29"
 ---
 
 <section id="overview" class="section">
